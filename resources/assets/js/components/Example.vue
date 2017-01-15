@@ -7,7 +7,7 @@
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
-                        <li><router-link :to="{ name: 'schedule' }">Schedule</router-link></li>
+                        <li><router-link :to="{ name: 'event' }">Event</router-link></li>
                         <li><router-link :to="{ name: 'about' }">About</router-link></li>
 
                     </ul>

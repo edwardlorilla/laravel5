@@ -22,9 +22,11 @@ import Auth from './components/packages/auth/Auth.js'
 Vue.use(Auth);
 import VeeValidate from 'vee-validate';
 Vue.use(VeeValidate);
+
+import Event from './components/Event.vue';
 import Example from './components/Example.vue';
-import Schedule from './components/Event.vue';
 import About from './components/About.vue';
+
 
 
 const router = new VueRouter({
@@ -32,9 +34,21 @@ const router = new VueRouter({
     base: __dirname,
     linkActiveClass: 'active',
     routes: [
-        { path: '/', component:  Schedule , name: 'schedule'},
+        { path: '/', component:  Event , name: 'event', meta:{forVisitors:true}},
         { path: '/about', component:  About , name: 'about'},
     ]
 })
+
+router.beforeEach(
+    (to,from,next) => {
+         if (to.matched.some(record => record.meta.forVisitors)){
+            if(Vue.auth.isAuthenticated()){
+                next({
+                    name: 'about'
+                })
+            }else next()
+         }else  next()
+    }
+)
 
 new Vue(Vue.util.extend({router}, Example)).$mount('#app')
