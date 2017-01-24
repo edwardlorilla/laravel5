@@ -15,27 +15,50 @@ require('./bootstrap');
 var Vue = require('vue')
 var VueRouter = require('vue-router');
 
+
 Vue.http.headers.common['X-CSRF-TOKEN'] = Laravel.csrfToken;
 Vue.use(VueRouter);
 
 import Auth from './components/packages/auth/Auth.js'
+
 Vue.use(Auth);
+Vue.http.headers.common['Authorization'] = 'Bearer ' + Vue.auth.getToken()
+
 import VeeValidate from 'vee-validate';
 Vue.use(VeeValidate);
 
 import Event from './components/Event.vue';
 import Example from './components/Example.vue';
 import About from './components/About.vue';
+import Users from './components/Users.vue';
+import UsersTest from './components/UsersTest.vue';
 
 
+Vue.filter('uppercase', function(value) {
+    return value.toUpperCase();
+});
 
+
+// Filter for cutting off strings that are too long.
+Vue.filter('truncate', function(value) {
+    var length = 60;
+
+    if(value.length <= length) {
+        return value;
+    }
+    else {
+        return value.substring(0, length) + '...';
+    }
+});
 const router = new VueRouter({
     hashbang: false,
     base: __dirname,
     linkActiveClass: 'active',
     routes: [
         { path: '/', component:  Event , name: 'event', meta:{forVisitors:true}},
-        { path: '/about', component:  About , name: 'about'},
+        { path: '/about', component:  About , name: 'about', meta:{forAuth:true} },
+        { path: '/users', component:  Users , name: 'users', meta:{forVisitors:true} },
+        { path: '/userstest', component:  UsersTest , name: 'usersTest', meta:{forVisitors:true} },
     ]
 })
 
@@ -47,7 +70,15 @@ router.beforeEach(
                     name: 'about'
                 })
             }else next()
-         }else  next()
+         }
+         else if (to.matched.some(record => record.meta.forAuth)){
+             if(! Vue.auth.isAuthenticated()){
+                 next({
+                     name: 'event'
+                 })
+             }else next()
+         }
+         else  next()
     }
 )
 

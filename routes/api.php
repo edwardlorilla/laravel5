@@ -1,5 +1,6 @@
 <?php
 
+use App\User;
 use Illuminate\Http\Request;
 
 /*
@@ -16,5 +17,17 @@ use Illuminate\Http\Request;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:api');
+Route::get('usersearch', function (Request $request) {
 
+    $search = $request->search;
+    $users = User::where('name', 'LIKE' , "%$search%")->orderBy('created_at', 'desc')->get();
+
+    return response()->json(['users' => $users]);
+});
+Route::get('users', function () {
+
+    $users = User::orderBy('created_at', 'desc')->get();
+
+    return response()->json(['fetchUsers' => $users]);
+});
 Route::resource('/schedule', 'ScheduleController');
